@@ -1,5 +1,13 @@
 plugins {
     id 'java'
+    id 'jacoco'
+    id "org.sonarqube" version "2.8"
+    id "com.github.spotbugs" version "4.4.4"
+    id 'pmd'
+    id 'info.solidsoft.pitest' version '1.5.1'
+    id 'checkstyle'
+    id "net.davidecavestro.gradle.jxr" version "0.2.1"
+    id 'com.github.ben-manes.versions'  version '0.28.0' // see dependencyUpdates
 }
 
 group 'ch.uhlme'
@@ -10,5 +18,135 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+    testImplementation('org.junit.jupiter:junit-jupiter-params:5.6.2')
+    testImplementation('org.hamcrest:hamcrest-library:2.2')
+    implementation('com.google.flogger:flogger:0.5.1')
+    implementation('com.google.flogger:flogger-system-backend:0.5.1')
+    implementation('com.github.spotbugs:spotbugs-annotations:4.0.4')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+jar.dependsOn javadocJar
+jar.dependsOn sourcesJar
+
+compileJava   {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ch.uhlme.Application'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+/* jacoco configuration */
+check.dependsOn jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+jacocoTestReport.mustRunAfter test
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.8
+            }
+        }
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "patrickuhlmann_xmparsing-sample"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.java.checkstyle.reportPaths", [ "build/reports/checkstyle/main.xml", "build/reports/checkstyle/test.xml" ]
+        property "sonar.java.pmd.reportPaths", [ "build/reports/pmd/main.xml", "build/reports/pmd/test.xml" ]
+        // property "sonar.java.spotbugs.reportPaths", "build/reports/spotbugs/*.xml"
+        property "sonar.junit.reportPaths", "build/test-results/test"
+    }
+}
+
+spotbugs {
+    //noinspection GrFinalVariableAccess
+    ignoreFailures = false
+}
+
+pmd {
+    ignoreFailures = false
+}
+
+spotbugsMain {
+    reports {
+ 	// Only one report format is supported. Html is easier to read, so let's use that
+    	// (xml is the one that's enabled by default)
+    	xml.enabled = false
+        html.enabled = true
+        
+    }
+}
+
+spotbugsTest {
+    reports {
+ 	// Only one report format is supported. Html is easier to read, so let's use that
+    	// (xml is the one that's enabled by default)
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+pitest {
+    //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
+    junit5PluginVersion = '0.12'
+    avoidCallsTo = [ 'com.google.common.flogger',
+                     'java.io.PrintStream',
+                     'java.io.BufferedReader',
+                     'java.io.InputStream',
+                     'java.util.logging',
+                     'ch.uhlme.utils.LogUtils']
+}
+
+checkstyle {
+    toolVersion '8.33'
+    maxWarnings = 0
+}
+
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+check.dependsOn dependencyUpdates
+dependencyUpdates {
+    rejectVersionIf {
+        isNonStable(it.candidate.version)
+    }
+
+    gradleReleaseChannel="current"
+    checkForGradleUpdate = true
+    outputDir = "build/reports"
+    reportfileName = "dependencyUpdates"
 }
