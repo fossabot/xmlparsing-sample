@@ -1,0 +1,16 @@
+<list>
+    <cats>
+        <cat>
+            <name>Bob</name>
+            <age>5</age>
+        </cat>
+        <cat>
+            <name>James</name>
+            <age>6</age>
+        </cat>
+        <cat>
+            <name>Susan</name>
+            <age>7</age>
+        </cat>
+    </cats>
+</list>
