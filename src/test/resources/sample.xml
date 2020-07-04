@@ -1,16 +1,15 @@
-<list>
-    <cats>
-        <cat>
-            <name>Bob</name>
-            <age>5</age>
-        </cat>
-        <cat>
-            <name>James</name>
-            <age>6</age>
-        </cat>
-        <cat>
-            <name>Susan</name>
-            <age>7</age>
-        </cat>
-    </cats>
-</list>
+<?xml version="1.0" encoding="UTF-8"?>
+<cats>
+    <cat>
+        <name>Bob</name>
+        <age unit="years">5</age>
+    </cat>
+    <cat>
+        <name>James</name>
+        <age unit="years">6</age>
+    </cat>
+    <cat>
+        <name>Susan</name>
+        <age unit="years">7</age>
+    </cat>
+</cats>
