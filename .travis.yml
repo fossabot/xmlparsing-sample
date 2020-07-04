@@ -4,5 +4,11 @@ jdk:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+addons:
+  sonarcloud:
+    organization: "uhlme"
+    token:
+      secure: "UzkgJ7w1rifFJqbHcFeut2TqCaoQc5YyRugo/nkOYrPYWqPV4U4OIi4eRpu+DNB3gYjZPmPBrwxaiyBney/2+jR5vnbr11t3YN6cp93E7gGZ1VxHDHmqmD4FloHpIUZoLmtsubVfn3UI6DD7rg5JtNBp1cv6JypLJ2dr3gwbJ5P0kFnyWReeL1X/LWtUNFJ1k7OR7KHZSOZ53IltunIN3/Y2/hJW+AhtVX9DrH6nWa25s6GLbsRVHCQK97+mGksWBJzmQo4lKqzzk3XI6mfH9wPIwLYdK/UWMpJb1HNUiAim9ivCU8YryR55Zes07FoiFt7Ssyuq1ko4hrG/TrmmVsEDWw1ZFnQAFAbSsxzVzT5XIZnpLt0LekiGFFIMeUw14PwD67E5v7LnuXXsufkuVz/9/p7hieT+VMH4rl8TSbRKJN+XV0gpOydWEkuqggRqkDEUjXipJkbp6NLa36hiEaP27J+M2sTln2obYsMvjRjqpmCgfxeoe8wB/y4NVa5tLuSeEO1Y9Z+wMGv7tXAN+iX7tMlaOK+DLx0N/4Vhhmf128xzzUJie341KtRysq2853uNMQhCRiF358ZJibQPBgHO4eixr2csQXBox25PUj38A32JgB1Dzj7KCGiP/j+EWYeCMhi19yxUAjOgNXjQWqkSxa0VJsdvO6yVN5XFCLc="
+
 script:
-  - ./gradlew check
+  - ./gradlew check sonarqube
